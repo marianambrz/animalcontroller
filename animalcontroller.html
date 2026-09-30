@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Pet Mood Check</title>
+
+<style>
+body{
+    font-family:Arial;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+}
+
+input,select{
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+}
+
+button{
+    padding:10px;
+    background:#28a745;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+#resultado{
+    margin-top:20px;
+}
+</style>
+</head>
+<body>
+
+<h1>🐶 Pet Mood Check</h1>
+
+<input id="tutor" placeholder="Nome do Tutor">
+
+<input id="animal" placeholder="Nome do Animal">
+
+<select id="especie">
+    <option>Cão</option>
+    <option>Gato</option>
+</select>
+
+<input id="idade" type="number" placeholder="Idade">
+
+<h3>Comportamentos</h3>
+
+<label><input type="checkbox" value="raiva"> Raiva</label><br>
+<label><input type="checkbox" value="morder"> Morder</label><br>
+<label><input type="checkbox" value="latir"> Latir</label><br>
+<label><input type="checkbox" value="prostacao"> Prostração</label><br>
+<label><input type="checkbox" value="inquietacao"> Inquietação</label><br>
+<label><input type="checkbox" value="brincar"> Brincar</label><br><br>
+
+<button onclick="avaliar()">
+Avaliar
+</button>
+
+<div id="resultado"></div>
+
+<script>
+async function avaliar(){
+
+    const comportamentos =
+        [...document.querySelectorAll('input[type="checkbox"\]:checked')]
+        .map(item => item.value);
+
+    const dados = {
+        tutor: document.getElementById("tutor").value,
+        animal: document.getElementById("animal").value,
+        especie: document.getElementById("especie").value,
+        idade: document.getElementById("idade").value,
+        comportamentos
+    };
+
+    const resposta = await fetch(
+        "http://localhost:3000/api/humor",
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(dados)
+        }
+    );
+
+    const resultado = await resposta.json();
+
+    document.getElementById("resultado").innerHTML = `
+        <h2>Resultado</h2>
+
+        <p><b>Tutor:</b> ${resultado.tutor}</p>
+
+        <p><b>Animal:</b> ${resultado.animal}</p>
+
+        <p><b>Espécie:</b> ${resultado.especie}</p>
+
+        <p><b>Idade:</b> ${resultado.idade}</p>
+
+        <p><b>Pontuação:</b> ${resultado.score}</p>
+
+        <h3>${resultado.classificacao}</h3>
+    `;
+}
+</script>
+
+</body>
+</html>
