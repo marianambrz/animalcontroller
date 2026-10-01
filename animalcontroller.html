@@ -1,111 +1,153 @@
+HTML
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pet Mood Check</title>
-
+ 
 <style>
 body{
-    font-family:Arial;
-    max-width:800px;
-    margin:auto;
-    padding:20px;
+font-family: Arial, sans-serif;
+max-width: 800px;
+margin: auto;
+padding: 20px;
+background: #f5f5f5;
 }
-
-input,select{
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
+ 
+.container{
+background: white;
+padding: 20px;
+border-radius: 10px;
+box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
-
+ 
+input, select{
+width: 100%;
+padding: 10px;
+margin-bottom: 10px;
+box-sizing: border-box;
+}
+ 
 button{
-    padding:10px;
-    background:#28a745;
-    color:white;
-    border:none;
-    cursor:pointer;
+background: #28a745;
+color: white;
+padding: 12px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+width: 100%;
 }
-
+ 
+button:hover{
+background: #218838;
+}
+ 
 #resultado{
-    margin-top:20px;
+margin-top: 20px;
+padding: 15px;
+border-radius: 8px;
+background: #eef7ee;
 }
 </style>
 </head>
+ 
 <body>
-
+ 
+<div class="container">
+ 
 <h1>🐶 Pet Mood Check</h1>
-
+ 
 <input id="tutor" placeholder="Nome do Tutor">
-
+ 
 <input id="animal" placeholder="Nome do Animal">
-
+ 
 <select id="especie">
-    <option>Cão</option>
-    <option>Gato</option>
+<option>Cão</option>
+<option>Gato</option>
 </select>
-
+ 
 <input id="idade" type="number" placeholder="Idade">
-
-<h3>Comportamentos</h3>
-
+ 
+<h3>Comportamentos Observados</h3>
+ 
 <label><input type="checkbox" value="raiva"> Raiva</label><br>
 <label><input type="checkbox" value="morder"> Morder</label><br>
 <label><input type="checkbox" value="latir"> Latir</label><br>
 <label><input type="checkbox" value="prostacao"> Prostração</label><br>
 <label><input type="checkbox" value="inquietacao"> Inquietação</label><br>
 <label><input type="checkbox" value="brincar"> Brincar</label><br><br>
-
+ 
 <button onclick="avaliar()">
-Avaliar
+Avaliar Humor
 </button>
-
+ 
 <div id="resultado"></div>
-
+ 
+</div>
+ 
 <script>
-async function avaliar(){
-
-    const comportamentos =
-        [...document.querySelectorAll('input[type="checkbox"\]:checked')]
-        .map(item => item.value);
-
-    const dados = {
-        tutor: document.getElementById("tutor").value,
-        animal: document.getElementById("animal").value,
-        especie: document.getElementById("especie").value,
-        idade: document.getElementById("idade").value,
-        comportamentos
-    };
-
-    const resposta = await fetch(
-        "http://localhost:3000/api/humor",
-        {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify(dados)
-        }
-    );
-
-    const resultado = await resposta.json();
-
-    document.getElementById("resultado").innerHTML = `
-        <h2>Resultado</h2>
-
-        <p><b>Tutor:</b> ${resultado.tutor}</p>
-
-        <p><b>Animal:</b> ${resultado.animal}</p>
-
-        <p><b>Espécie:</b> ${resultado.especie}</p>
-
-        <p><b>Idade:</b> ${resultado.idade}</p>
-
-        <p><b>Pontuação:</b> ${resultado.score}</p>
-
-        <h3>${resultado.classificacao}</h3>
-    `;
+function avaliar(){
+ 
+const comportamentos =
+[...document.querySelectorAll('input[type="checkbox"\]:checked')]
+.map(item => item.value);
+ 
+let score = 0;
+ 
+if(comportamentos.includes("brincar")) score += 3;
+if(comportamentos.includes("latir")) score += 0;
+ 
+if(comportamentos.includes("inquietacao")) score -= 1;
+if(comportamentos.includes("prostacao")) score -= 2;
+if(comportamentos.includes("raiva")) score -= 3;
+if(comportamentos.includes("morder")) score -= 4;
+ 
+let humor;
+let classificacao;
+ 
+if(score >= 3){
+humor = "😊 Feliz";
+classificacao = "Humor Positivo";
+}
+else if(score >= 0){
+humor = "😐 Neutro";
+classificacao = "Humor Estável";
+}
+else if(score >= -3){
+humor = "😟 Estressado";
+classificacao = "Necessita Observação";
+}
+else{
+humor = "🚨 Muito Alterado";
+classificacao = "Procure um Médico Veterinário";
+}
+ 
+document.getElementById("resultado").innerHTML = `
+<h2>Resultado da Avaliação</h2>
+ 
+<p><b>Tutor:</b> ${document.getElementById("tutor").value}</p>
+ 
+<p><b>Animal:</b> ${document.getElementById("animal").value}</p>
+ 
+<p><b>Espécie:</b> ${document.getElementById("especie").value}</p>
+ 
+<p><b>Idade:</b> ${document.getElementById("idade").value}</p>
+ 
+<p><b>Comportamentos:</b> ${
+comportamentos.length
+? comportamentos.join(", ")
+: "Nenhum informado"
+}</p>
+ 
+<p><b>Pontuação:</b> ${score}</p>
+ 
+<p><b>Humor:</b> ${humor}</p>
+ 
+<h3>${classificacao}</h3>
+`;
 }
 </script>
-
+ 
 </body>
 </html>
